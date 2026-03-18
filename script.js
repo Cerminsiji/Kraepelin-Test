@@ -1,4 +1,10 @@
 // =======================
+// CONFIG JUMLAH DAN WAKTU SOAL
+// =======================
+let MAX_QUESTIONS = 150; // batas soal
+let MAX_TIME = 180; // detik
+
+// =======================
 // STATE
 // =======================
 let topNum, bottomNum;
@@ -60,13 +66,14 @@ function startTest(){
   document.getElementById("intro").style.display="none";
   document.getElementById("testArea").style.display="block";
 
-  if(!loadState()){
-    topNum = rand();
-    bottomNum = rand();
-    count = 0;
-    results = [];
-    startTime = Date.now();
-  }
+  // reset paksa agar tidak nyambung session lama
+  clearState();
+
+  topNum = rand();
+  bottomNum = rand();
+  count = 0;
+  results = [];
+  startTime = Date.now();
 
   render();
   startTimer();
@@ -79,12 +86,15 @@ function startTest(){
 // =======================
 function startTimer(){
   timer = setInterval(()=>{
+
     let t = Math.floor((Date.now()-startTime)/1000);
     document.getElementById("time").innerText = t;
 
-    if(t >= 300){ // 5 menit
+    // stop karena waktu
+    if(t >= MAX_TIME){
       finishTest();
     }
+
   },1000);
 }
 
@@ -92,7 +102,6 @@ function startTimer(){
 // INPUT
 // =======================
 document.addEventListener("keydown", function(e){
-
   if(e.key === "Enter"){
     submit();
   }
@@ -114,11 +123,19 @@ function submit(){
     time: Date.now()
   });
 
-  // next
+  // next soal (alur Kraepelin asli)
   bottomNum = topNum;
   topNum = rand();
 
   count++;
+
+  // =======================
+  // STOP BERDASARKAN JUMLAH SOAL
+  // =======================
+  if(count >= MAX_QUESTIONS){
+    finishTest();
+    return;
+  }
 
   input.value = "";
 
@@ -144,6 +161,7 @@ function finishTest(){
 // ANALYSIS
 // =======================
 function mean(arr){
+  if(arr.length === 0) return 0;
   return arr.reduce((a,b)=>a+b,0)/arr.length;
 }
 
@@ -151,28 +169,46 @@ function analyze(){
 
   let correctArr = results.map(r=>r.correct);
   let total = correctArr.length;
-  let acc = mean(correctArr);
 
+  let acc = mean(correctArr);
   let speed = total;
 
-  let times = results.map((r,i)=> i===0 ? 0 : r.time - results[i-1].time);
+  let times = results.map((r,i)=>
+    i===0 ? 0 : r.time - results[i-1].time
+  );
+
   let avgTime = mean(times);
 
-  let fatigue = mean(correctArr.slice(-10)) - mean(correctArr.slice(0,10));
+  // =======================
+  // FATIGUE SAFE (ANTI BUG)
+  // =======================
+  let sliceSize = Math.min(10, correctArr.length);
 
+  let early = correctArr.slice(0, sliceSize);
+  let late = correctArr.slice(-sliceSize);
+
+  let fatigue = mean(late) - mean(early);
+
+  // =======================
+  // PROFILE LOGIC
+  // =======================
   let profile;
 
   if(acc > 0.9 && avgTime < 800){
     profile = "High Performer";
   } else if(acc < 0.7){
     profile = "Impulsif";
-  } else if(fatigue < 0){
+  } else if(fatigue < -0.1){
     profile = "Mudah Lelah";
   } else {
     profile = "Stabil";
   }
 
+  // =======================
+  // OUTPUT
+  // =======================
   document.getElementById("result").innerHTML = `
+    <b>Hasil Tes</b><br><br>
     Soal: ${total}<br>
     Akurasi: ${(acc*100).toFixed(1)}%<br>
     Avg Time: ${avgTime.toFixed(0)} ms<br>
