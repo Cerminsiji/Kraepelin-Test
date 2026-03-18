@@ -1,19 +1,18 @@
 // =======================
-// 1. SIMULASI DATA
-// (GANTI DENGAN DATA ASLI)
+// GLOBAL
 // =======================
+let currentColumn = 0;
+let totalColumns = 20;
+let timePerColumn = 5;
+
+let numbers = [];
 let results = [];
-for (let i = 0; i < 30; i++) {
-  results.push({
-    col: i+1,
-    correct: Math.floor(Math.random()*10)+10,
-    wrong: Math.floor(Math.random()*5),
-    time: 15
-  });
-}
+
+let timerInterval;
+let timeLeft;
 
 // =======================
-// 2. UTIL
+// UTIL
 // =======================
 function mean(arr){
   return arr.reduce((a,b)=>a+b)/arr.length;
@@ -41,112 +40,136 @@ function normalize(val, min, max){
 }
 
 // =======================
-// 3. FEATURE ENGINEERING
+// TEST ENGINE
 // =======================
-let speeds = results.map(r=>r.correct);
-let errors = results.map(r=>r.wrong);
+function generateColumn() {
+  numbers = [];
+  for (let i = 0; i < 5; i++) {
+    numbers.push(Math.floor(Math.random()*9));
+  }
+  document.getElementById("numbers").innerText = numbers.join(" ");
+}
 
-let meanSpeed = mean(speeds);
-let accuracy = results.reduce((a,b)=>a+b.correct,0) /
-               results.reduce((a,b)=>a+b.correct+b.wrong,0);
+function startTest(){
+  document.getElementById("testArea").style.display = "block";
+  document.getElementById("resultArea").style.display = "none";
 
-let variability = stdDev(speeds);
-let trend = slope(speeds);
-let fatigue = mean(speeds.slice(-5)) - mean(speeds.slice(0,5));
+  currentColumn = 0;
+  results = [];
+
+  nextColumn();
+}
+
+function nextColumn(){
+
+  if (currentColumn >= totalColumns){
+    finishTest();
+    return;
+  }
+
+  generateColumn();
+
+  timeLeft = timePerColumn;
+  document.getElementById("timer").innerText = timeLeft;
+
+  timerInterval = setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft;
+
+    if (timeLeft <= 0){
+      clearInterval(timerInterval);
+      saveResult(0);
+      currentColumn++;
+      nextColumn();
+    }
+  },1000);
+}
+
+function submitAnswer(){
+  let answer = parseInt(document.getElementById("answer").value);
+
+  clearInterval(timerInterval);
+
+  saveResult(answer || 0);
+
+  document.getElementById("answer").value = "";
+
+  currentColumn++;
+  nextColumn();
+}
+
+function saveResult(answer){
+
+  let correct = 0;
+  let wrong = 0;
+
+  for (let i = 0; i < numbers.length - 1; i++) {
+    let sum = numbers[i] + numbers[i+1];
+
+    if (sum === answer) correct++;
+    else wrong++;
+  }
+
+  results.push({
+    col: currentColumn,
+    correct,
+    wrong,
+    time: timePerColumn - timeLeft
+  });
+}
+
+function finishTest(){
+  document.getElementById("testArea").style.display = "none";
+  document.getElementById("resultArea").style.display = "block";
+
+  runAnalysis();
+}
 
 // =======================
-// 4. PSYCHOLOGICAL MODEL
+// ML + ANALYSIS
 // =======================
-let endurance = trend - variability;
-let impulse = mean(errors);
-let focus = 1 / (variability + 1);
-let stress = accuracy - variability/10;
+async function runAnalysis(){
 
-let psych = {
-  speed: normalize(meanSpeed, 5, 25),
-  accuracy: normalize(accuracy, 0.5, 1),
-  consistency: normalize(1/(variability+1), 0, 1),
-  endurance: normalize(endurance, -5, 5),
-  impulse: normalize(1/(impulse+1), 0, 1),
-  focus: normalize(focus, 0, 1),
-  stress: normalize(stress, 0, 1)
-};
+  let speeds = results.map(r=>r.correct);
+  let errors = results.map(r=>r.wrong);
 
-// =======================
-// 5. ML (TensorFlow.js)
-// =======================
-async function runML(){
+  let meanSpeed = mean(speeds);
+  let accuracy = results.reduce((a,b)=>a+b.correct,0) /
+                 results.reduce((a,b)=>a+b.correct+b.wrong,0);
 
-  let input = tf.tensor2d([[
-    meanSpeed,
-    accuracy,
-    variability,
-    trend,
-    fatigue
-  ]]);
+  let variability = stdDev(speeds);
+  let trend = slope(speeds);
+  let fatigue = mean(speeds.slice(-5)) - mean(speeds.slice(0,5));
 
+  // psychological
+  let endurance = trend - variability;
+  let impulse = mean(errors);
+  let focus = 1/(variability+1);
+  let stress = accuracy - variability/10;
+
+  let psych = {
+    speed: normalize(meanSpeed,5,25),
+    accuracy: normalize(accuracy,0.5,1),
+    consistency: normalize(1/(variability+1),0,1),
+    endurance: normalize(endurance,-5,5),
+    impulse: normalize(1/(impulse+1),0,1),
+    focus: normalize(focus,0,1),
+    stress: normalize(stress,0,1)
+  };
+
+  // TensorFlow
+  let input = tf.tensor2d([[meanSpeed, accuracy, variability, trend, fatigue]]);
   let model = tf.sequential();
-  model.add(tf.layers.dense({units:8, inputShape:[5], activation:'relu'}));
-  model.add(tf.layers.dense({units:4, activation:'relu'}));
+  model.add(tf.layers.dense({units:8,inputShape:[5],activation:'relu'}));
+  model.add(tf.layers.dense({units:4,activation:'relu'}));
 
-  let output = model.predict(input);
-  let vec = await output.data();
+  let vec = await model.predict(input).data();
 
-  return vec;
-}
-
-// =======================
-// 6. CLASSIFICATION
-// =======================
-function classify(vec){
-
-  let score = vec[0] + vec[1] - vec[2];
-
-  if (score > 5 && accuracy > 0.9)
-    return "High Performer Stabil";
-
-  if (accuracy < 0.8)
-    return "Impulsif (cepat tapi kurang teliti)";
-
-  if (trend < 0)
-    return "Fatigue (cenderung kelelahan)";
-
-  if (variability > 3)
-    return "Tidak stabil";
-
-  return "Performa rata-rata";
-}
-
-// =======================
-// 7. INSIGHT
-// =======================
-function generateInsight(p){
-
-  let t = "";
-
-  t += (p.speed > 70) ? "Kecepatan tinggi. " : "Kecepatan sedang. ";
-  t += (p.accuracy > 80) ? "Sangat teliti. " : "Perlu ketelitian. ";
-  t += (p.consistency > 50) ? "Stabil. " : "Fluktuatif. ";
-  t += (p.endurance > 50) ? "Tahan kerja. " : "Mudah lelah. ";
-  t += (p.impulse > 50) ? "Kontrol baik. " : "Impulsif. ";
-  t += (p.focus > 50) ? "Fokus baik. " : "Fokus lemah. ";
-  t += (p.stress > 50) ? "Tahan tekanan." : "Sensitif tekanan.";
-
-  return t;
-}
-
-// =======================
-// 8. MAIN
-// =======================
-async function main(){
-
-  let vec = await runML();
-  let profile = classify(vec);
+  let profile = classify(vec, accuracy, variability, trend);
   let insight = generateInsight(psych);
 
-  document.getElementById("profile").innerHTML =
-    "<b>"+profile+"</b>";
-
+  // UI
+  document.getElementById("profile").innerHTML = "<b>"+profile+"</b>";
   document.getElementById("insight").innerText = insight;
 
   document.getElementById("metrics").innerHTML = `
@@ -157,30 +180,60 @@ async function main(){
     Fatigue: ${fatigue.toFixed(2)}
   `;
 
-  // Line Chart
+  // charts
   new Chart(document.getElementById("lineChart"), {
     type:'line',
     data:{
       labels: results.map(r=>r.col),
-      datasets:[{
-        label:"Performance",
-        data:speeds
-      }]
+      datasets:[{label:"Performance", data:speeds}]
     }
   });
 
-  // Radar Chart
   new Chart(document.getElementById("radarChart"), {
     type:'radar',
     data:{
       labels:Object.keys(psych),
-      datasets:[{
-        label:"Psychological Profile",
-        data:Object.values(psych)
-      }]
+      datasets:[{label:"Profile", data:Object.values(psych)}]
     }
   });
-
 }
 
-main();
+// =======================
+// CLASSIFY
+// =======================
+function classify(vec, acc, varb, trend){
+
+  let score = vec[0] + vec[1] - vec[2];
+
+  if (score > 5 && acc > 0.9)
+    return "High Performer Stabil";
+
+  if (acc < 0.8)
+    return "Impulsif";
+
+  if (trend < 0)
+    return "Fatigue";
+
+  if (varb > 3)
+    return "Tidak stabil";
+
+  return "Rata-rata";
+}
+
+// =======================
+// INSIGHT
+// =======================
+function generateInsight(p){
+
+  let t = "";
+
+  t += (p.speed>70) ? "Cepat. " : "Sedang. ";
+  t += (p.accuracy>80) ? "Teliti. " : "Kurang teliti. ";
+  t += (p.consistency>50) ? "Stabil. " : "Fluktuatif. ";
+  t += (p.endurance>50) ? "Tahan kerja. " : "Mudah lelah. ";
+  t += (p.impulse>50) ? "Kontrol baik. " : "Impulsif. ";
+  t += (p.focus>50) ? "Fokus baik. " : "Fokus lemah. ";
+  t += (p.stress>50) ? "Tahan tekanan." : "Sensitif tekanan.";
+
+  return t;
+}
