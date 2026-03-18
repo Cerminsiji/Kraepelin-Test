@@ -1,35 +1,73 @@
-# Kraepelin Test Web App
+# 🧠 Kraepelin Test Pro (Web-Based Cognitive Assessment)
 
-Live Preview:
+🔗 **Live Demo**  
 https://cerminsiji.github.io/Kraepelin-Test/
 
-## 📌 Deskripsi
-Aplikasi Tes Kraepelin berbasis web dengan sistem penjumlahan berkelanjutan (continuous addition).
+---
 
-## ✨ Fitur
-- Real Kraepelin Logic (angka berjalan)
-- Mobile Friendly
-- Reaction Time Tracking
-- Fatigue Analysis
-- Chart Visualization
+## 📌 Overview
+**Kraepelin Test Pro** adalah aplikasi berbasis web yang mensimulasikan **Tes Kraepelin (Pauli Test)** — sebuah metode psikotes klasik yang digunakan untuk mengukur:
 
-## 🚀 Cara Pakai
-1. Klik tombol **Mulai Test**
-2. Tambahkan angka
-3. Masukkan angka satuan hasil
-4. Lihat hasil analisis
+- Kecepatan kerja (work speed)
+- Ketelitian (accuracy)
+- Konsistensi (stability)
+- Daya tahan mental (endurance / fatigue)
+- Kontrol impuls (impulse control)
 
-## 🧠 Analisis
-- Kecepatan kerja
-- Akurasi
-- Waktu reaksi
-- Ketahanan (fatigue)
+Aplikasi ini dirancang menyerupai **standar psikotes perusahaan (HR assessment)** dengan pengalaman yang cepat, sederhana, dan responsif.
 
-## 📂 Deploy GitHub Pages
-1. Upload semua file
-2. Settings → Pages
-3. Pilih branch `main` atau `master`
-4. Done
+---
 
-## ⚠️ Disclaimer
-Bukan alat diagnosis psikologi resmi, hanya simulasi.
+## ⚙️ How It Works
+Pengguna akan diberikan operasi penjumlahan sederhana:
+
+Contoh:
+9 + 6 = 15 → Jawaban: 5 
+8 + 7 = 15 → Jawaban: 5
+
+### Aturan:
+- Angka selalu antara **0 – 9**
+- Hasil penjumlahan bisa > 9
+- Jawaban yang dimasukkan adalah **angka satuan (%10)**
+- Tekan **ENTER** untuk submit dan lanjut ke soal berikutnya
+
+---
+
+## ✨ Key Features
+
+### 🧪 Core Test Engine
+- Continuous addition (stream-based)
+- Real Kraepelin logic (bukan per kolom statis)
+- Fast-paced interaction (keyboard-driven)
+
+### ⚡ Performance Tracking
+- Total answered questions (speed)
+- Accuracy rate (% correct)
+- Reaction time (ms)
+- Fatigue analysis (early vs late performance)
+
+### 💾 Persistence System
+- Auto-save menggunakan **localStorage**
+- Resume test setelah refresh / keluar
+- Tidak kehilangan progress saat gangguan koneksi
+
+### 📱 User Experience
+- Mobile-friendly design
+- Minimalist & distraction-free UI
+- Instant input (tanpa klik tombol)
+
+### 🧠 Psychological Insight
+- Klasifikasi performa:
+  - High Performer
+  - Stable Performer
+  - Impulsive
+  - Easily Fatigued
+
+---
+
+## 🚀 Getting Started
+
+### 1. Run Locally
+```bash
+git clone https://github.com/your-username/kraepelin-test.git
+cd kraepelin-test
