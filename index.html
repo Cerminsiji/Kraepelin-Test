@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Kraepelin Cognitive Analytics</title>
+  <title>Kraepelin Cognitive Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -14,16 +12,16 @@
 
 <div class="container">
 
-  <h1>Kraepelin Test + AI Analysis</h1>
+  <h1>Kraepelin Cognitive Test</h1>
 
-  <button onclick="startTest()">Start Test</button>
+  <button id="startBtn">Start Test</button>
 
-  <!-- TEST AREA -->
+  <!-- TEST -->
   <div id="testArea" style="display:none;">
     <p>Waktu: <span id="timer">5</span> detik</p>
     <div id="numbers"></div>
     <input type="number" id="answer" placeholder="Jawaban">
-    <button onclick="submitAnswer()">OK</button>
+    <button id="submitBtn">OK</button>
   </div>
 
   <!-- RESULT -->
@@ -56,6 +54,6 @@
 
 </div>
 
-<script src="app.js"></script>
+<script src="app.js" defer></script>
 </body>
 </html>
