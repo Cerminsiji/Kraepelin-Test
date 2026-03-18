@@ -1,4 +1,14 @@
 // =======================
+// INIT (AMAN)
+// =======================
+window.onload = function(){
+
+  document.getElementById("startBtn").addEventListener("click", startTest);
+  document.getElementById("submitBtn").addEventListener("click", submitAnswer);
+
+};
+
+// =======================
 // GLOBAL
 // =======================
 let currentColumn = 0;
@@ -15,20 +25,19 @@ let timeLeft;
 // UTIL
 // =======================
 function mean(arr){
-  return arr.reduce((a,b)=>a+b)/arr.length;
+  return arr.reduce((a,b)=>a+b,0)/arr.length;
 }
 
 function stdDev(arr){
   let m = mean(arr);
-  return Math.sqrt(arr.map(x => (x-m)**2).reduce((a,b)=>a+b)/arr.length);
+  return Math.sqrt(arr.map(x => (x-m)**2).reduce((a,b)=>a+b,0)/arr.length);
 }
 
 function slope(y){
   let n = y.length;
   let x = [...Array(n).keys()];
-
-  let sumX = x.reduce((a,b)=>a+b);
-  let sumY = y.reduce((a,b)=>a+b);
+  let sumX = x.reduce((a,b)=>a+b,0);
+  let sumY = y.reduce((a,b)=>a+b,0);
   let sumXY = x.reduce((a,b,i)=>a + b*y[i],0);
   let sumX2 = x.reduce((a,b)=>a+b*b,0);
 
@@ -36,21 +45,22 @@ function slope(y){
 }
 
 function normalize(val, min, max){
-  return ((val - min) / (max - min)) * 100;
+  return Math.max(0, Math.min(100, ((val - min)/(max-min))*100));
 }
 
 // =======================
 // TEST ENGINE
 // =======================
-function generateColumn() {
+function generateColumn(){
   numbers = [];
-  for (let i = 0; i < 5; i++) {
+  for(let i=0;i<5;i++){
     numbers.push(Math.floor(Math.random()*9));
   }
   document.getElementById("numbers").innerText = numbers.join(" ");
 }
 
 function startTest(){
+
   document.getElementById("testArea").style.display = "block";
   document.getElementById("resultArea").style.display = "none";
 
@@ -62,7 +72,7 @@ function startTest(){
 
 function nextColumn(){
 
-  if (currentColumn >= totalColumns){
+  if(currentColumn >= totalColumns){
     finishTest();
     return;
   }
@@ -76,7 +86,7 @@ function nextColumn(){
     timeLeft--;
     document.getElementById("timer").innerText = timeLeft;
 
-    if (timeLeft <= 0){
+    if(timeLeft <= 0){
       clearInterval(timerInterval);
       saveResult(0);
       currentColumn++;
@@ -86,8 +96,8 @@ function nextColumn(){
 }
 
 function submitAnswer(){
-  let answer = parseInt(document.getElementById("answer").value);
 
+  let answer = parseInt(document.getElementById("answer").value);
   clearInterval(timerInterval);
 
   saveResult(answer || 0);
@@ -103,10 +113,10 @@ function saveResult(answer){
   let correct = 0;
   let wrong = 0;
 
-  for (let i = 0; i < numbers.length - 1; i++) {
+  for(let i=0;i<numbers.length-1;i++){
     let sum = numbers[i] + numbers[i+1];
 
-    if (sum === answer) correct++;
+    if(sum === answer) correct++;
     else wrong++;
   }
 
@@ -119,6 +129,7 @@ function saveResult(answer){
 }
 
 function finishTest(){
+
   document.getElementById("testArea").style.display = "none";
   document.getElementById("resultArea").style.display = "block";
 
@@ -126,9 +137,9 @@ function finishTest(){
 }
 
 // =======================
-// ML + ANALYSIS
+// ANALYSIS (SMART AI-LIKE)
 // =======================
-async function runAnalysis(){
+function runAnalysis(){
 
   let speeds = results.map(r=>r.correct);
   let errors = results.map(r=>r.wrong);
@@ -141,31 +152,17 @@ async function runAnalysis(){
   let trend = slope(speeds);
   let fatigue = mean(speeds.slice(-5)) - mean(speeds.slice(0,5));
 
-  // psychological
-  let endurance = trend - variability;
-  let impulse = mean(errors);
-  let focus = 1/(variability+1);
-  let stress = accuracy - variability/10;
-
+  // psychological scoring
   let psych = {
     speed: normalize(meanSpeed,5,25),
     accuracy: normalize(accuracy,0.5,1),
     consistency: normalize(1/(variability+1),0,1),
-    endurance: normalize(endurance,-5,5),
-    impulse: normalize(1/(impulse+1),0,1),
-    focus: normalize(focus,0,1),
-    stress: normalize(stress,0,1)
+    endurance: normalize(trend,-2,2),
+    focus: normalize(1/(variability+1),0,1),
+    stress: normalize(accuracy - variability/10,0,1)
   };
 
-  // TensorFlow
-  let input = tf.tensor2d([[meanSpeed, accuracy, variability, trend, fatigue]]);
-  let model = tf.sequential();
-  model.add(tf.layers.dense({units:8,inputShape:[5],activation:'relu'}));
-  model.add(tf.layers.dense({units:4,activation:'relu'}));
-
-  let vec = await model.predict(input).data();
-
-  let profile = classify(vec, accuracy, variability, trend);
+  let profile = classify(psych);
   let insight = generateInsight(psych);
 
   // UI
@@ -180,11 +177,55 @@ async function runAnalysis(){
     Fatigue: ${fatigue.toFixed(2)}
   `;
 
-  // charts
+  renderCharts(speeds, psych);
+}
+
+// =======================
+// CLASSIFICATION
+// =======================
+function classify(p){
+
+  if(p.speed>70 && p.accuracy>80 && p.consistency>60)
+    return "High Performer Stabil";
+
+  if(p.speed>70 && p.accuracy<60)
+    return "Cepat tapi kurang teliti";
+
+  if(p.endurance<40)
+    return "Mudah lelah";
+
+  if(p.consistency<40)
+    return "Tidak konsisten";
+
+  return "Performa rata-rata";
+}
+
+// =======================
+// INSIGHT
+// =======================
+function generateInsight(p){
+
+  let t = "";
+
+  t += (p.speed>70) ? "Kecepatan tinggi. " : "Kecepatan cukup. ";
+  t += (p.accuracy>80) ? "Sangat teliti. " : "Perlu ketelitian. ";
+  t += (p.consistency>50) ? "Stabil. " : "Fluktuatif. ";
+  t += (p.endurance>50) ? "Tahan kerja. " : "Cenderung lelah. ";
+  t += (p.focus>50) ? "Fokus baik. " : "Fokus lemah. ";
+  t += (p.stress>50) ? "Tahan tekanan." : "Sensitif tekanan.";
+
+  return t;
+}
+
+// =======================
+// CHARTS
+// =======================
+function renderCharts(speeds, psych){
+
   new Chart(document.getElementById("lineChart"), {
     type:'line',
     data:{
-      labels: results.map(r=>r.col),
+      labels:speeds.map((_,i)=>i+1),
       datasets:[{label:"Performance", data:speeds}]
     }
   });
@@ -196,44 +237,5 @@ async function runAnalysis(){
       datasets:[{label:"Profile", data:Object.values(psych)}]
     }
   });
-}
 
-// =======================
-// CLASSIFY
-// =======================
-function classify(vec, acc, varb, trend){
-
-  let score = vec[0] + vec[1] - vec[2];
-
-  if (score > 5 && acc > 0.9)
-    return "High Performer Stabil";
-
-  if (acc < 0.8)
-    return "Impulsif";
-
-  if (trend < 0)
-    return "Fatigue";
-
-  if (varb > 3)
-    return "Tidak stabil";
-
-  return "Rata-rata";
-}
-
-// =======================
-// INSIGHT
-// =======================
-function generateInsight(p){
-
-  let t = "";
-
-  t += (p.speed>70) ? "Cepat. " : "Sedang. ";
-  t += (p.accuracy>80) ? "Teliti. " : "Kurang teliti. ";
-  t += (p.consistency>50) ? "Stabil. " : "Fluktuatif. ";
-  t += (p.endurance>50) ? "Tahan kerja. " : "Mudah lelah. ";
-  t += (p.impulse>50) ? "Kontrol baik. " : "Impulsif. ";
-  t += (p.focus>50) ? "Fokus baik. " : "Fokus lemah. ";
-  t += (p.stress>50) ? "Tahan tekanan." : "Sensitif tekanan.";
-
-  return t;
 }
