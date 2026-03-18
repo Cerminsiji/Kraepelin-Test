@@ -1,51 +1,37 @@
 body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
+  font-family: sans-serif;
+  background: #f5f7fa;
   margin: 0;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 500px;
   margin: auto;
-  padding: 10px;
+  padding: 20px;
+  text-align: center;
 }
 
-h1 {
+.numbers {
+  font-size: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#answer {
+  font-size: 24px;
+  width: 60px;
   text-align: center;
+  margin-top: 10px;
 }
 
 button {
-  padding: 12px;
-  margin: 10px 0;
+  margin-top: 10px;
+  padding: 10px;
   width: 100%;
-  border-radius: 8px;
-  border: none;
-  background: #38bdf8;
-  color: black;
-  font-weight: bold;
+  font-size: 16px;
 }
 
-#numbers {
-  font-size: 26px;
-  text-align: center;
-  margin: 15px 0;
-}
-
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-}
-
-.card {
-  background: #1e293b;
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 12px;
-}
-
-@media (max-width:600px){
-  h1 { font-size:18px; }
+.status {
+  margin-top: 10px;
 }
