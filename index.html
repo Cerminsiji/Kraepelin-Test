@@ -1,59 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <title>Kraepelin Cognitive Test</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kraepelin Test</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
 <div class="container">
 
-  <h1>Kraepelin Cognitive Test</h1>
+  <h1>Kraepelin Test</h1>
 
-  <button id="startBtn">Start Test</button>
-
-  <!-- TEST -->
-  <div id="testArea" style="display:none;">
-    <p>Waktu: <span id="timer">5</span> detik</p>
-    <div id="numbers"></div>
-    <input type="number" id="answer" placeholder="Jawaban">
-    <button id="submitBtn">OK</button>
+  <div id="intro">
+    <p>
+      Tambahkan angka yang muncul, lalu ambil angka satuannya saja.
+    </p>
+    <button onclick="startTest()">Mulai Test</button>
   </div>
 
-  <!-- RESULT -->
+  <div id="testArea" style="display:none;">
+    <div class="numbers">
+      <div id="top-number">0</div>
+      <div>+</div>
+      <div id="bottom-number">0</div>
+    </div>
+
+    <div id="next-number"></div>
+
+    <input id="answer" type="number" maxlength="1">
+    <button onclick="submitAnswer()">Submit</button>
+
+    <div class="status">
+      Waktu: <span id="time">0</span>
+    </div>
+  </div>
+
   <div id="resultArea" style="display:none;">
+    <h2>Hasil</h2>
+    <div id="profile"></div>
+    <div id="insight"></div>
 
-    <div class="card">
-      <canvas id="lineChart"></canvas>
-    </div>
-
-    <div class="card">
-      <canvas id="radarChart"></canvas>
-    </div>
-
-    <div class="card">
-      <h3>Profil</h3>
-      <div id="profile"></div>
-    </div>
-
-    <div class="card">
-      <h3>Insight</h3>
-      <div id="insight"></div>
-    </div>
-
-    <div class="card">
-      <h3>Metrics</h3>
-      <div id="metrics"></div>
-    </div>
-
+    <canvas id="chart"></canvas>
   </div>
 
 </div>
 
-<script src="app.js" defer></script>
+<script src="script.js"></script>
 </body>
 </html>
