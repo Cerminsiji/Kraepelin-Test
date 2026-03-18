@@ -3,10 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kraepelin Test</title>
-
+  <title>Kraepelin Test Pro</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -17,34 +15,32 @@
 
   <div id="intro">
     <p>
-      Tambahkan angka yang muncul, lalu ambil angka satuannya saja.
+      Tambahkan angka dan masukkan angka satuan.<br>
+      Tekan <b>ENTER</b> untuk lanjut.
     </p>
-    <button onclick="startTest()">Mulai Test</button>
+    <button onclick="startTest()">Mulai</button>
   </div>
 
   <div id="testArea" style="display:none;">
-    <div class="numbers">
-      <div id="top-number">0</div>
-      <div>+</div>
-      <div id="bottom-number">0</div>
+    
+    <div class="question">
+      <span id="top">0</span>
+      <span>+</span>
+      <span id="bottom">0</span>
     </div>
 
-    <div id="next-number"></div>
+    <input id="answer" maxlength="1" autofocus>
 
-    <input id="answer" type="number" maxlength="1">
-    <button onclick="submitAnswer()">Submit</button>
-
-    <div class="status">
-      Waktu: <span id="time">0</span>
+    <div class="info">
+      Soal ke: <span id="count">0</span>
+      | Waktu: <span id="time">0</span>s
     </div>
+
   </div>
 
   <div id="resultArea" style="display:none;">
     <h2>Hasil</h2>
-    <div id="profile"></div>
-    <div id="insight"></div>
-
-    <canvas id="chart"></canvas>
+    <div id="result"></div>
   </div>
 
 </div>
