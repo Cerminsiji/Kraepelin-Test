@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Kraepelin Cognitive Analytics</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,31 +14,44 @@
 
 <div class="container">
 
-  <h1>Kraepelin Analytics</h1>
+  <h1>Kraepelin Test + AI Analysis</h1>
 
-  <div class="card">
-    <h3>Performance</h3>
-    <canvas id="lineChart"></canvas>
+  <button onclick="startTest()">Start Test</button>
+
+  <!-- TEST AREA -->
+  <div id="testArea" style="display:none;">
+    <p>Waktu: <span id="timer">5</span> detik</p>
+    <div id="numbers"></div>
+    <input type="number" id="answer" placeholder="Jawaban">
+    <button onclick="submitAnswer()">OK</button>
   </div>
 
-  <div class="card">
-    <h3>Psychological Radar</h3>
-    <canvas id="radarChart"></canvas>
-  </div>
+  <!-- RESULT -->
+  <div id="resultArea" style="display:none;">
 
-  <div class="card">
-    <h3>Profil</h3>
-    <div id="profile"></div>
-  </div>
+    <div class="card">
+      <canvas id="lineChart"></canvas>
+    </div>
 
-  <div class="card">
-    <h3>Insight Psikologi</h3>
-    <div id="insight"></div>
-  </div>
+    <div class="card">
+      <canvas id="radarChart"></canvas>
+    </div>
 
-  <div class="card">
-    <h3>Metrics</h3>
-    <div id="metrics"></div>
+    <div class="card">
+      <h3>Profil</h3>
+      <div id="profile"></div>
+    </div>
+
+    <div class="card">
+      <h3>Insight</h3>
+      <div id="insight"></div>
+    </div>
+
+    <div class="card">
+      <h3>Metrics</h3>
+      <div id="metrics"></div>
+    </div>
+
   </div>
 
 </div>
