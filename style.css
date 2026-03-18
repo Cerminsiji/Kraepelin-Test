@@ -16,27 +16,34 @@ h1 {
 }
 
 button {
-  padding: 10px;
+  padding: 12px;
   margin: 10px 0;
   width: 100%;
+  border-radius: 8px;
+  border: none;
+  background: #38bdf8;
+  color: black;
+  font-weight: bold;
 }
 
 #numbers {
-  font-size: 24px;
+  font-size: 26px;
   text-align: center;
   margin: 15px 0;
 }
 
 input {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
 }
 
 .card {
   background: #1e293b;
   padding: 15px;
   margin: 10px 0;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 @media (max-width:600px){
